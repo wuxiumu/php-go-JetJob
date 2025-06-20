@@ -1,0 +1,5 @@
+mysql:
+  dsn: root:dz1991wqB!@tcp(127.0.0.1:3306)/jetjob?charset=utf8mb4&parseTime=True&loc=Local
+redis:
+  addr: 127.0.0.1:6379
+token: test-token
