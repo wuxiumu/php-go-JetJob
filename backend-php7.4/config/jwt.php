@@ -1,4 +1,4 @@
 <?php
 return [
-    'key' => 'your_secret_key'
+    'key' => env('JWT_SECRET', 'your_secret_key'),
 ];

@@ -16,8 +16,19 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 	"sync"
 )
+
+// authToken 由 JETJOB_TOKEN 覆盖，缺省仅用于本机演示。
+var authToken = "test-token"
+
+func envOr(key, fallback string) string {
+	if v := strings.TrimSpace(os.Getenv(key)); v != "" {
+		return v
+	}
+	return fallback
+}
 
 var (
 	DB  *gorm.DB
@@ -99,7 +110,7 @@ func init() {
 
 // ===================== 初始化 ===========================
 func InitDB() {
-	dsn := "root:dz1991wqB!@tcp(127.0.0.1:3306)/jetjob?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := envOr("JETJOB_MYSQL_DSN", "root:changeme@tcp(127.0.0.1:3306)/jetjob?charset=utf8mb4&parseTime=True&loc=Local")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database: " + err.Error())
@@ -109,7 +120,7 @@ func InitDB() {
 }
 
 func InitRedis() {
-	RDB = redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+	RDB = redis.NewClient(&redis.Options{Addr: envOr("JETJOB_REDIS_ADDR", "127.0.0.1:6379")})
 	if err := RDB.Ping(Ctx).Err(); err != nil {
 		panic("failed to connect redis: " + err.Error())
 	}
@@ -320,8 +331,8 @@ func loginHandler(c *gin.Context) {
 	}
 	// 这里你可以查数据库、配置等，这里演示账号 admin 密码 123456
 	if req.Username == "admin" && req.Password == "123456" {
-		// 返回一个“伪token”，如"test-token"
-		c.JSON(200, gin.H{"token": "test-token"})
+		// 本机演示账号。令牌与 TokenAuthMiddleware 使用同一配置。
+		c.JSON(200, gin.H{"token": authToken})
 	} else {
 		c.JSON(401, gin.H{"error": "账号或密码错误"})
 	}
@@ -329,9 +340,13 @@ func loginHandler(c *gin.Context) {
 
 // =============== main函数 ================================
 func main() {
+	_ = godotenv.Load()
+	if v := strings.TrimSpace(os.Getenv("JETJOB_TOKEN")); v != "" {
+		authToken = v
+	}
 	InitDB()
 	InitRedis()
-	token := "test-token"
+	token := authToken
 	go monitorNodes()
 	go schedulerLoop()
 
