@@ -40,7 +40,7 @@ JetJob 是一套易于二次开发、面向工程实践的分布式任务调度�
 
 
 
-- Go 1.18+ / 1.20+
+- Go 1.24.2（见 go.mod）。可运行入口是 cmd/scheduler；cmd/jetjob 目前不能编译
 - Gin (Web 框架)
 - GORM (MySQL ORM)
 - go-redis (Redis 客户端)
@@ -54,7 +54,7 @@ JetJob 是一套易于二次开发、面向工程实践的分布式任务调度�
 
 - **前端：** Vue3 + Vite + Element Plus
 
-- **其他：** 支持 Docker 部署，支持 JWT/Token 认证
+- **其他：** 仓库 Compose 只启动 MySQL/Redis；支持 JWT/Token 认证
 
 
 
@@ -161,7 +161,7 @@ php-go-scheduler/
 │   ├── model/                 # 数据结构
 │   ├── storage/               # DB/Redis 连接
 │   └── utils/                 # 配置、token校验等工具
-├── frontend/                  # Vue3 前端项目
+├── ../frontend-vue3.5.13/     # Vue3 前端（仓库根目录，不在本模块内）
 ├── go.mod / go.sum
 ├── README.md
 └── ...
@@ -188,9 +188,10 @@ php-go-scheduler/
 
 
 ```
-git clone https://github.com/yourname/php-go-scheduler.git
-cd php-go-scheduler
+cd scheduler-go1.24.2
 go mod tidy
+cp .env.example .env
+cp config/config.yaml.example config/config.yaml
 ```
 
 
@@ -224,7 +225,7 @@ cp config/config.yaml.example config/config.yaml
 
 
 ```
-go run ./cmd/jetjob/main.go
+go run ./cmd/scheduler
 ```
 
 
@@ -242,7 +243,7 @@ go run ./cmd/jetjob/main.go
 
 
 ```
-cd frontend
+cd ../frontend-vue3.5.13
 npm install
 npm run dev
 ```
@@ -393,12 +394,12 @@ npm run dev
 
 
 
-- 前端 frontend/.env.development
+- 前端 frontend-vue3.5.13/.env.development
 
 
 
 ```
-VITE_API_BASE=http://localhost:8090
+VITE_API_BASE=http://127.0.0.1:8090/api
 ```
 
 
